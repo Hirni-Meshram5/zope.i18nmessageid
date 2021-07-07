@@ -31,6 +31,7 @@ jobs:
       group: edge
       dist: focal
       virt: vm
+      python: 3.8
       env: DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
       install: docker pull $DOCKER_IMAGE
       script: bash .manylinux.sh
