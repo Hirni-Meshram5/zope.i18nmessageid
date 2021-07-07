@@ -6,14 +6,14 @@ env:
     TWINE_PASSWORD:
       secure: "VQxFZo+4W6XAX94+kJY8dx90uKnmsJIBLPHruK5Xz2E7bFM3t7MlcFN5A0v90fB7BJUiKyQpO67R+wF3XIaqd7UDcI0NVcNihKkzkP8rE4CLsHIhjWU9lKuO0juXegv+0p8ztHV9anvSXN3WbaYk7elXiv4CXxpTeVBy77KK8gE="
 
-arch:
-  - amd64
-  - arm64
 python:
+  - 2.7
+  - 3.5
   - 3.6
   - 3.7
   - 3.8
-  - 3.9
+  - pypy
+  - pypy3
 
 jobs:
   include:
@@ -24,17 +24,42 @@ jobs:
       env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
       install: docker pull $DOCKER_IMAGE
       script: bash .manylinux.sh
-      
+
     - name: 64-bit manylinux wheels (all Pythons)
       services: docker
-      arch: arm64
       env: DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
+      install: docker pull $DOCKER_IMAGE
+      script: bash .manylinux.sh
+      
+    - name: 32-bit manylinux wheels (all Pythons)
+      services: docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_i686 PRE_CMD=linux32
       install: docker pull $DOCKER_IMAGE
       script: bash .manylinux.sh
 
     # It's important to use 'macpython' builds to get the least
     # restrictive wheel tag. It's also important to avoid
     # 'homebrew 3' because it floats instead of being a specific version.
+    - name: Python 2.7 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 2.7.17'
+    - name: Python 3.5 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 3.5'
+    - name: Python 3.6 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 3.6.2'
+    - name: Python 3.7 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 3.7.0'
+    - name: Python 3.8 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 3.8.0'
 
 before_install:
   - |
@@ -43,7 +68,6 @@ before_install:
       source terryfy/travis_tools.sh
       get_python_environment $TERRYFY_PYTHON venv
     fi
-
 install:
   - pip install -U pip setuptools
   - pip install -U coveralls
@@ -76,7 +100,6 @@ after_success:
         twine upload --skip-existing wheelhouse/*
       fi
     fi
-
 notifications:
   email: false
 
